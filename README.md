@@ -42,16 +42,19 @@ Projeto de tratamento de dados, estruturação de **Database Interativa (Excel &
 ## Principais Funcionalidades
 
 ### 1. Dashboard Python Dash ([`app.py`](./app.py))
+
 - **10 Filtros Interativos Combinados:** Status (`Todas` / `Reais` / `Fraudulentas`), Busca livre por palavra-chave, Logo da Empresa, Trabalho Remoto, País, Setor/Indústria, Tipo de Contrato, Nível de Experiência, Escolaridade e Faixa de Tamanho da Descrição.
 - **5 Indicadores (KPIs) em Tempo Real + 4 Gráficos Plotly Interativos.**
 - **Tabela da Database Pesquisável:** ordenação e filtro por coluna, destaque visual para vagas fraudulentas e **Inspetor de Registro** (clique em qualquer vaga para visualizar a descrição, requisitos e benefícios completos já limpos).
 - **Exportação Instantânea:** download do recorte filtrado em `.csv`.
 
 ### 2. Database em Excel ([`Jobs_Database.xlsx`](./Jobs_Database.xlsx))
+
 - **Aba `Base_Interativa_Vagas`:** formatada como Tabela Oficial com AutoFiltro e barra superior dinâmica (`SUBTOTAL`) que recalcula vagas visíveis, total de fraudes e taxa de fraude ao filtrar qualquer coluna.
 - **Aba `Resumo_Dashboard`:** consolidação executiva por setor e tipo de contrato com gráficos nativos do Excel.
 
 ### 3. Pipeline de Limpeza ([`scripts/clean_dataset.py`](./scripts/clean_dataset.py))
+
 - Remoção de resíduos de HTML/CSS quebrados (`mso-...`) e vazamentos de buffer do dataset original;
 - Correção de caracteres mal codificados (`Windows-1252` / BOM UTF-8);
 - Padronização dos hashes de anonimização (`#URL_...#`, `#EMAIL_...#`, `#PHONE_...#`) para marcadores limpos (`[URL]`, `[EMAIL]`, `[TELEFONE]`).
@@ -70,9 +73,11 @@ Acesse em `http://localhost:8050`.
 ## Como Publicar na Vercel
 
 1. Faça push deste repositório para o GitHub:
+
    ```bash
    git add -A
    git commit -m "chore: organize project structure and configure Vercel deployment"
    git push origin main
    ```
+
 2. Acesse [vercel.com/new](https://vercel.com/new), importe o repositório `barbaracohenguilhem/DataSet_limpo_em_partes` e clique em **Deploy** (o [`vercel.json`](./vercel.json) já configura automaticamente o Python Dash + SQLite).
