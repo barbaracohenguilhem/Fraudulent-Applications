@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-"""Dashboard Interativo em Python Dash conectado ao Banco SQLite (DataSet_1_ao_5.db)."""
+"""Aplicação Web Interativa em Python Dash (compatível com Vercel Serverless WSGI e execução local)."""
 
 import os
 import sqlite3
+from urllib.parse import quote
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from dash import Dash, Input, Output, State, ctx, dash_table, dcc, html
+from dash import Dash, Input, Output, State, dash_table, dcc, html
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "DataSet_1_ao_5.db")
+DB_PATH = os.path.join(BASE_DIR, "data", "jobs_database.db")
 
-if not os.path.exists(DB_PATH):
-    import gerar_databases
-    gerar_databases.main()
+
+def get_db_connection() -> sqlite3.Connection:
+    """Abre conexão somente-leitura compatível com o filesystem serverless da Vercel."""
+    return sqlite3.connect(f"file:{quote(DB_PATH)}?mode=ro", uri=True)
 
 
 def get_filter_options() -> dict:
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     opts = {}
     for col in ["pais", "industry_clean", "employment_type_clean", "experience_clean", "education_clean"]:
         df_opt = pd.read_sql_query(
@@ -94,7 +96,7 @@ def query_vagas(
         WHERE {' AND '.join(clauses)}
         ORDER BY id_vaga ASC
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     df = pd.read_sql_query(sql, conn, params=params)
     conn.close()
     return df
@@ -103,7 +105,9 @@ def query_vagas(
 OPTS = get_filter_options()
 MAX_DESC_LEN = OPTS["max_len"]
 
-app = Dash(__name__, title="Database & Analytics — Vagas Reais vs Falsas")
+dash_app = Dash(__name__, title="Job Postings Fraud Analytics — Database")
+app = dash_app.server
+server = dash_app.server
 
 CARD_STYLE = {
     "backgroundColor": "#FFFFFF",
@@ -123,7 +127,7 @@ LABEL_STYLE = {
     "letterSpacing": "0.03em",
 }
 
-app.layout = html.Div(
+dash_app.layout = html.Div(
     style={
         "fontFamily": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         "backgroundColor": "#F1F5F9",
@@ -149,11 +153,11 @@ app.layout = html.Div(
             children=[
                 html.Div([
                     html.H2(
-                        "Database Interativa — Vagas Reais vs Fraudulentas (Partes 1 a 5)",
+                        "Job Postings Fraud Analytics — Database Interativa",
                         style={"margin": "0", "fontSize": "22px", "fontWeight": "700"},
                     ),
                     html.P(
-                        "Conectado via SQLite (DataSet_1_ao_5.db) • 10.000 vagas higienizadas sem ruído HTML",
+                        "SQLite Database (jobs_database.db) • 10.000 anúncios de vagas higienizados",
                         style={"margin": "4px 0 0 0", "fontSize": "13px", "color": "#94A3B8"},
                     ),
                 ]),
@@ -454,7 +458,7 @@ def make_kpi_card(titulo: str, valor: str, subtitulo: str, cor_borda: str) -> ht
     )
 
 
-@app.callback(
+@dash_app.callback(
     Output("f-status", "value"),
     Output("f-busca", "value"),
     Output("f-logo", "value"),
@@ -472,7 +476,7 @@ def reset_filters(_n: int):
     return "Todas", "", "Todos", "Todos", [], [], [], [], [], [0, MAX_DESC_LEN]
 
 
-@app.callback(
+@dash_app.callback(
     Output("kpi-row", "children"),
     Output("g-setores", "figure"),
     Output("g-logo-fraude", "figure"),
@@ -607,7 +611,7 @@ def update_dashboard(status, paises, setores, contratos, exps, edus, logo, remot
     return kpis, fig_setores, fig_logo, fig_emp, fig_paises, records, [0] if records else []
 
 
-@app.callback(
+@dash_app.callback(
     Output("detalhe-vaga", "children"),
     Input("tabela-vagas", "derived_virtual_data"),
     Input("tabela-vagas", "derived_virtual_selected_rows"),
@@ -619,7 +623,7 @@ def mostrar_detalhe_vaga(rows, selected_rows):
     idx = selected_rows[0] if selected_rows and selected_rows[0] < len(rows) else 0
     vaga_id = rows[idx]["id_vaga"]
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     df_row = pd.read_sql_query("SELECT * FROM vagas WHERE id_vaga = ?", conn, params=[vaga_id])
     conn.close()
     if df_row.empty:
@@ -678,7 +682,7 @@ def mostrar_detalhe_vaga(rows, selected_rows):
     ])
 
 
-@app.callback(
+@dash_app.callback(
     Output("download-dataframe-csv", "data"),
     Input("btn-download", "n_clicks"),
     State("f-status", "value"),
@@ -699,6 +703,6 @@ def exportar_csv(_n, status, paises, setores, contratos, exps, edus, logo, remot
 
 
 if __name__ == "__main__":
-    print("Dashboard Dash iniciado em: http://127.0.0.1:8050")
-    app.run(debug=False, host="127.0.0.1", port=8050)
+    port = int(os.environ.get("PORT", 8050))
+    dash_app.run(debug=False, host="0.0.0.0", port=port)
 

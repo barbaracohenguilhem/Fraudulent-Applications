@@ -1,5 +1,5 @@
 python-interpreter = ".venv/bin/python"
-project-includes = ["*.py"]
+project-includes = ["app.py", "scripts/*.py"]
 replace-imports-with-any = ["openpyxl.*", "dash.*", "plotly.*", "pandas.*"]
 
 [errors]

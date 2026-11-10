@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Gera Database SQLite enriquecida (DataSet_1_ao_5.db) e Database Excel interativa (Database_Excel_1_ao_5.xlsx)."""
+"""Gera o banco SQLite (data/jobs_database.db) e a planilha Excel interativa (Jobs_Database.xlsx)."""
 
+import os
 import sqlite3
 import pandas as pd
 from openpyxl import Workbook
@@ -9,9 +10,12 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 def main() -> None:
-    df = pd.read_csv("DataSet_1_ao_5_limpo.csv", dtype=str).fillna("")
+    csv_path = os.path.join(ROOT_DIR, "data", "jobs_cleaned.csv")
+    df = pd.read_csv(csv_path, dtype=str).fillna("")
 
     # Enriquecer colunas auxiliares para filtros interativos
     df.insert(0, "id_vaga", range(1, len(df) + 1))
@@ -28,8 +32,8 @@ def main() -> None:
     df["tem_perguntas"] = df["has_questions"].map({"t": "Sim", "f": "Não"}).fillna("Não")
     df["tamanho_descricao"] = df["description"].str.len()
 
-    # 1. Atualizar banco SQLite (DataSet_1_ao_5.db) com índices rápidos para o Dash
-    db_path = "DataSet_1_ao_5.db"
+    # 1. Atualizar banco SQLite (data/jobs_database.db) com índices rápidos para o Dash
+    db_path = os.path.join(ROOT_DIR, "data", "jobs_database.db")
     conn = sqlite3.connect(db_path)
     df.to_sql("vagas", conn, if_exists="replace", index=False)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_vagas_status ON vagas(status_vaga)")
@@ -235,9 +239,9 @@ def main() -> None:
     ws_kpi.column_dimensions["C"].width = 16
     ws_kpi.column_dimensions["D"].width = 18
 
-    wb.save("Database_Excel_1_ao_5.xlsx")
-    wb.save("DataSet_1_ao_5_limpo.xlsx")
-    print("[OK] Database_Excel_1_ao_5.xlsx e DataSet_1_ao_5_limpo.xlsx gerados com filtros e gráficos!")
+    xlsx_out = os.path.join(ROOT_DIR, "Jobs_Database.xlsx")
+    wb.save(xlsx_out)
+    print(f"[OK] {xlsx_out} gerado com filtros e gráficos!")
 
 
 if __name__ == "__main__":
