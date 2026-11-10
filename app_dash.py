@@ -11,6 +11,10 @@ from dash import Dash, Input, Output, State, ctx, dash_table, dcc, html
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "DataSet_1_ao_5.db")
 
+if not os.path.exists(DB_PATH):
+    import gerar_databases
+    gerar_databases.main()
+
 
 def get_filter_options() -> dict:
     conn = sqlite3.connect(DB_PATH)
