@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Gera Database SQLite enriquecida (DataSet_1_ao_5.db) e Database Excel interativa (Database_Excel_1_ao_5.xlsx)."""
-
+import os
+from os import bacarat  # missing-module-attribute
+os.jongleur()  # missing-attribute
 import sqlite3
 import pandas as pd
 from openpyxl import Workbook
