@@ -6,7 +6,35 @@ Dataset limpo de **anúncios de vagas de emprego**, com a indicação de quais s
 
 | Arquivo | Descrição |
 |---|---|
-| `DataSet_parte_01.csv` … `DataSet_parte_09.csv` | Partes do dataset; todas têm o mesmo cabeçalho |
+| [`app_dash.py`](./app_dash.py) | **Dashboard Interativo em Python Dash** conectado ao banco SQLite (`http://127.0.0.1:8050`) |
+| [`Database_Excel_1_ao_5.xlsx`](./Database_Excel_1_ao_5.xlsx) | **Database em Excel** com AutoFiltro, fórmulas `SUBTOTAL` dinâmicas e aba `Resumo_Dashboard` com gráficos nativos |
+| [`DataSet_1_ao_5.db`](./DataSet_1_ao_5.db) | **Banco de Dados SQLite** (`tabela vagas`, 10.000 registros limpos das partes 1 a 5) |
+| [`DataSet_1_ao_5_limpo.csv`](./DataSet_1_ao_5_limpo.csv) | Base consolidada limpa (partes 1 a 5) sem ruído de HTML/CSS e com hashes padronizados (`[URL]`, `[EMAIL]`, `[TELEFONE]`) |
+| [`limpar_1_ao_5.py`](./limpar_1_ao_5.py) | Script de limpeza profunda de texto, encoding e consolidação das partes 1 a 5 |
+| [`gerar_databases.py`](./gerar_databases.py) | Script gerador da Database SQLite e da planilha interativa do Excel |
+| [`Entrega_Professor.zip`](./Entrega_Professor.zip) | Pacote completo consolidado para entrega |
+| `DataSet_parte_01.csv` … `DataSet_parte_09.csv` | Partes do dataset; as partes `01` a `05` já estão higienizadas |
+
+## Dashboard Interativo (Python Dash) & Database Excel
+
+### Links Rápidos
+- **Acesso Local ao Dashboard Dash:** [http://127.0.0.1:8050](http://127.0.0.1:8050)
+- **Código-fonte do Dashboard:** [`app_dash.py`](./app_dash.py)
+- **Planilha Database Excel Interativa:** [`Database_Excel_1_ao_5.xlsx`](./Database_Excel_1_ao_5.xlsx)
+- **Banco de Dados SQLite:** [`DataSet_1_ao_5.db`](./DataSet_1_ao_5.db)
+
+### Como executar o Dashboard Python Dash
+```bash
+pip install -r requirements.txt
+python app_dash.py
+```
+Depois, abra **[http://127.0.0.1:8050](http://127.0.0.1:8050)** no navegador (ou dê dois cliques em [`ABRIR_DASHBOARD.command`](./ABRIR_DASHBOARD.command) no macOS).
+
+### Funcionalidades do Dashboard (`app_dash.py`)
+- **10 filtros interativos combinados:** Status (`Todas` / `Reais` / `Fraudulentas`), Busca textual por palavra-chave, Presença de Logo, Trabalho Remoto, País, Setor/Indústria, Tipo de Contrato, Experiência, Escolaridade e Faixa de Tamanho da Descrição.
+- **5 KPIs dinâmicos + 4 gráficos Plotly interativos** em tempo real.
+- **Tabela da Database com busca/ordenação por coluna** e **Inspetor de Vaga** (clique em qualquer linha para ler a descrição, requisitos e benefícios completos já limpos).
+- **Exportação instantânea** do recorte filtrado para `.csv`.
 
 ## Colunas
 
